@@ -67,6 +67,7 @@ public class MainThread extends Thread {
                 keyMsgQ.clear();
                 if (!beeping && keyDown) {
                     beeping = true;
+					snd.setFramePosition(0);
                     snd.loop(10000);
                 } else if (beeping && !keyDown && noKeyPressCount > 0) {
                     beeping = false;
@@ -85,6 +86,7 @@ public class MainThread extends Thread {
                 }
                 if (!otherEndBeeping && otherEndBeepingNow) {
                     otherEndBeeping = true;
+					otherEndSnd.setFramePosition(0);
                     otherEndSnd.loop(10000);
                 }
                 if (otherEndBeeping && !otherEndBeepingNow) {
