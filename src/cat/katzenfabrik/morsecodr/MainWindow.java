@@ -57,7 +57,8 @@ public class MainWindow extends JFrame implements KeyListener {
         setSize(new Dimension(800, 600));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         c.addKeyListener(this);
-        
+        c.createBufferStrategy(2);
+        t.setCanvas(c);
     }
 
     @Override

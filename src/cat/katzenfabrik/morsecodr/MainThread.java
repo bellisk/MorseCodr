@@ -1,6 +1,9 @@
 package cat.katzenfabrik.morsecodr;
 
+import java.awt.Canvas;
+import java.awt.Graphics2D;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +30,9 @@ public class MainThread extends Thread {
     private boolean beeping = false;
     private boolean otherEndBeeping = false;
     private Sender sender;
+    private ArrayList<Boolean> history = new ArrayList<Boolean>();
+    private ArrayList<Boolean> otherHistory = new ArrayList<Boolean>();
+    private Canvas c;
     public MainThread() throws LineUnavailableException {
         AudioFormat audioFormat = new AudioFormat(8000, 8, 1, true, true);
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
@@ -49,6 +55,9 @@ public class MainThread extends Thread {
     public synchronized void setSender(Sender sender) {
         this.sender = sender;
     }
+    public synchronized void setCanvas(Canvas c) {
+        this.c = c;
+    }
     
     @Override
     public void run() {
@@ -67,7 +76,7 @@ public class MainThread extends Thread {
                 keyMsgQ.clear();
                 if (!beeping && keyDown) {
                     beeping = true;
-					snd.setFramePosition(0);
+                    snd.setFramePosition(0);
                     snd.loop(10000);
                 } else if (beeping && !keyDown && noKeyPressCount > 0) {
                     beeping = false;
@@ -76,6 +85,7 @@ public class MainThread extends Thread {
                 if (sender != null) {
                     sender.write(beeping ? "1" : "0");
                 }
+                history.add(beeping);
                 boolean otherEndBeepingNow = false;
                 if (sender != null) {
                     try {
@@ -92,6 +102,11 @@ public class MainThread extends Thread {
                 if (otherEndBeeping && !otherEndBeepingNow) {
                     otherEndBeeping = false;
                     otherEndSnd.stop();
+                }
+                otherHistory.add(otherEndBeeping);
+                if (c != null) {
+                    Gfx.draw(history, otherHistory, (Graphics2D) c.getBufferStrategy().getDrawGraphics(), c.getWidth(), c.getHeight());
+                    c.getBufferStrategy().show();
                 }
             }
             try {
