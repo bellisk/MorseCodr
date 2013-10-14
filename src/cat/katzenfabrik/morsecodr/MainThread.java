@@ -4,6 +4,7 @@ import java.awt.Canvas;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,10 +35,17 @@ public class MainThread extends Thread {
     private ArrayList<Boolean> otherHistory = new ArrayList<Boolean>();
     private Canvas c;
     private int dotLength = 3;
-    private boolean showTape = true; public synchronized void setShowTape(boolean showTape) { this.showTape = showTape; }
-    private boolean showLetters = true; public synchronized void setShowLetters(boolean showLetters) { this.showLetters = showLetters; }
-    private boolean showMetre = true; public synchronized void setShowMetre(boolean showMetre) { this.showMetre = showMetre; }
-    private boolean showDotDash = true; public synchronized void setShowDotDash(boolean showDotDash) { this.showDotDash = showDotDash; }
+    private EnumSet<DisplaySetting> displaySettings = EnumSet.allOf(DisplaySetting.class);
+    public synchronized void setDisplaySetting(DisplaySetting setting, boolean value) {
+        if (value) {
+            displaySettings.add(setting);
+        } else {
+            displaySettings.remove(setting);
+        }
+    }
+    private boolean isSet(DisplaySetting setting) {
+        return displaySettings.contains(setting);
+    }
     public MainThread() throws LineUnavailableException {
         AudioFormat audioFormat = new AudioFormat(8000, 8, 1, true, true);
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
@@ -110,7 +118,13 @@ public class MainThread extends Thread {
                 }
                 otherHistory.add(otherEndBeeping);
                 if (c != null) {
-                    Gfx.draw(history, otherHistory, (Graphics2D) c.getBufferStrategy().getDrawGraphics(), c.getWidth(), c.getHeight(), dotLength, showTape, showLetters, showMetre, showDotDash);
+                    Gfx.draw(history, otherHistory, (Graphics2D) c.getBufferStrategy().getDrawGraphics(),
+                            c.getWidth(), c.getHeight(),
+                            dotLength,
+                            isSet(DisplaySetting.TAPE),
+                            isSet(DisplaySetting.LETTERS),
+                            isSet(DisplaySetting.METRE),
+                            isSet(DisplaySetting.DOTDASH));
                     c.getBufferStrategy().show();
                 }
             }
