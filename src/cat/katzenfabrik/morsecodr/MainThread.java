@@ -33,6 +33,11 @@ public class MainThread extends Thread {
     private ArrayList<Boolean> history = new ArrayList<Boolean>();
     private ArrayList<Boolean> otherHistory = new ArrayList<Boolean>();
     private Canvas c;
+    private int dotLength = 3;
+    private boolean showTape = true; public synchronized void setShowTape(boolean showTape) { this.showTape = showTape; }
+    private boolean showLetters = true; public synchronized void setShowLetters(boolean showLetters) { this.showLetters = showLetters; }
+    private boolean showMetre = true; public synchronized void setShowMetre(boolean showMetre) { this.showMetre = showMetre; }
+    private boolean showDotDash = true; public synchronized void setShowDotDash(boolean showDotDash) { this.showDotDash = showDotDash; }
     public MainThread() throws LineUnavailableException {
         AudioFormat audioFormat = new AudioFormat(8000, 8, 1, true, true);
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
@@ -105,7 +110,7 @@ public class MainThread extends Thread {
                 }
                 otherHistory.add(otherEndBeeping);
                 if (c != null) {
-                    Gfx.draw(history, otherHistory, (Graphics2D) c.getBufferStrategy().getDrawGraphics(), c.getWidth(), c.getHeight());
+                    Gfx.draw(history, otherHistory, (Graphics2D) c.getBufferStrategy().getDrawGraphics(), c.getWidth(), c.getHeight(), dotLength, showTape, showLetters, showMetre, showDotDash);
                     c.getBufferStrategy().show();
                 }
             }

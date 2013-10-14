@@ -8,20 +8,33 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 public class Gfx {
-    public static void draw(ArrayList<Boolean> history, ArrayList<Boolean> otherHistory, Graphics2D g, int w, int h) {
+    public static void draw(ArrayList<Boolean> history, ArrayList<Boolean> otherHistory, Graphics2D g, int w, int h,
+            int dotLength, boolean showTape, boolean showLetters, boolean showMetre, boolean showDotDash)
+    {
         g.setColor(Color.LIGHT_GRAY);
         g.fillRect(0, 0, w, h);
-        g.translate(0, h * 2 / 3);
-        drawTape(history, g, w, h / 6);
-        g.translate(0, h / 6);
-        drawTape(otherHistory, g, w, h / 6);                
+        if (showTape) {
+            g.translate(0, h * 2 / 3);
+            drawTape(history, g, w, h / 6, dotLength, showLetters, showMetre, showDotDash);
+            g.translate(0, h / 6);
+            drawTape(otherHistory, g, w, h / 6, dotLength, showLetters, showMetre, showDotDash);  
+        }
     }
-    public static void drawTape(ArrayList<Boolean> history, Graphics2D g, int w, int h) {
-        ArrayList<Symbol> symbols = Analysis.extractSymbols(history);
+    public static void drawTape(ArrayList<Boolean> history, Graphics2D g, int w, int h, 
+            int dotLength, boolean showLetters, boolean showMetre, boolean showDotDash)
+    {
+        ArrayList<Symbol> symbols = Analysis.extractSymbols(history, dotLength);
         ArrayList<Letter> letters = Analysis.extractLetters(symbols);
         int speedMultiplier = 2;
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
+        g.setColor(Color.LIGHT_GRAY);
+        int dotLengthBdy = dotLength * 2;
+        if (showMetre) {
+            for (int x = -(history.size() % dotLengthBdy) * speedMultiplier; x < w; x += dotLengthBdy * speedMultiplier) {
+                g.fillRect(x, 0, 1, h);
+            }
+        }
         g.setColor(Color.BLACK);
         /*for (int i = 1; i < history.size() && i < w / speedMultiplier; i++) {
             if (history.get(history.size() - i)) {
@@ -30,14 +43,16 @@ public class Gfx {
         }*/
         for (Symbol s : symbols) {
             if (s.type == Analysis.SymbolType.DASH || s.type == Analysis.SymbolType.DOT) {
-                g.setColor(s.type == Analysis.SymbolType.DASH ? Color.BLUE : Color.RED);
+                g.setColor(showDotDash ? (s.type == Analysis.SymbolType.DASH ? Color.BLUE : Color.RED) : Color.BLACK);
                 g.fillRect(w + (s.start - history.size()) * speedMultiplier, h / 3, (s.end - s.start) * speedMultiplier, h / 3);
             }
         }
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Verdana", Font.PLAIN, 18));
-        for (Letter l: letters) {
-            g.drawString(l.l, w + ((l.start + l.end) / 2 - history.size()) * speedMultiplier - 5, 18);
+        if (showLetters) {
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Verdana", Font.PLAIN, 18));
+            for (Letter l: letters) {
+                g.drawString(l.l, w + ((l.start + l.end) / 2 - history.size()) * speedMultiplier - 5, 18);
+            }
         }
     }
 }

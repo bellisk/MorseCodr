@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -53,6 +55,37 @@ public class MainWindow extends JFrame implements KeyListener {
         });
         Canvas c = new Canvas();
         add(c, BorderLayout.CENTER);
+        JPanel settingsP = new JPanel();
+        settingsP.setLayout(new BoxLayout(settingsP, BoxLayout.Y_AXIS));
+        add(settingsP, BorderLayout.EAST);
+        final JCheckBox tapeCB = new JCheckBox("Show tape", true); settingsP.add(tapeCB);
+        tapeCB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                t.setShowTape(tapeCB.isSelected());
+            }
+        });
+        final JCheckBox lettersCB = new JCheckBox("Show letters", true); settingsP.add(lettersCB);
+        lettersCB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                t.setShowLetters(lettersCB.isSelected());
+            }
+        });
+        final JCheckBox metreCB = new JCheckBox("Show metre", true); settingsP.add(metreCB);
+        metreCB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                t.setShowMetre(metreCB.isSelected());
+            }
+        });
+        final JCheckBox dotDashCB = new JCheckBox("Show dot/dash colouring", true); settingsP.add(dotDashCB);
+        dotDashCB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                t.setShowDotDash(dotDashCB.isSelected());
+            }
+        });
         pack();
         setSize(new Dimension(800, 600));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

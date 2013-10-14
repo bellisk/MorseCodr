@@ -23,9 +23,8 @@ public class Analysis {
         }
     }
     
-    public static ArrayList<Symbol> extractSymbols(ArrayList<Boolean> history) {
+    public static ArrayList<Symbol> extractSymbols(ArrayList<Boolean> history, int dotLength) {
         ArrayList<Symbol> symbols = new ArrayList<Symbol>();
-        int dotLength = 3;
         int dotDashBdy = 2 * dotLength;
         int pauseBdy = 3 * dotLength;
         int runStart = -1;
