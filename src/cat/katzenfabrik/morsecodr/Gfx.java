@@ -28,11 +28,11 @@ public class Gfx {
         int speedMultiplier = 2;
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
-        g.setColor(Color.LIGHT_GRAY);
+        g.setColor(new Color(220, 220, 220));
         int dotLengthBdy = dotLength * 2;
         if (showMetre) {
-            for (int x = -(history.size() % dotLengthBdy) * speedMultiplier; x < w; x += dotLengthBdy * speedMultiplier) {
-                g.fillRect(x, 0, 1, h);
+            for (int x = -(history.size() % (2 * dotLengthBdy)) * speedMultiplier; x < w; x += 2 * dotLengthBdy * speedMultiplier) {
+                g.fillRect(x, 0, dotLengthBdy * speedMultiplier, h);
             }
         }
         g.setColor(Color.BLACK);

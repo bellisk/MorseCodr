@@ -2,6 +2,7 @@ package cat.katzenfabrik.morsecodr;
 
 import java.awt.Canvas;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -13,8 +14,12 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.swing.SwingUtilities;
 
 public class MainThread extends Thread {
+    public static final int CYCLE_INTERVAL_NS = 25000000;
+    public static final int MIN_SLEEP_NS = 5000000;
+    private long lastCycleTime = -1;
     private final Clip snd;
     private final Clip otherEndSnd;
     public static final class KeyMsg {
@@ -76,6 +81,7 @@ public class MainThread extends Thread {
     @Override
     public void run() {
         while (true) {
+            lastCycleTime = System.nanoTime();
             synchronized (this) {
                 noKeyPressCount ++;
                 noKeyReleaseCount ++;
@@ -127,10 +133,25 @@ public class MainThread extends Thread {
                             isSet(DisplaySetting.METRE),
                             isSet(DisplaySetting.DOTDASH));
                     c.getBufferStrategy().show();
+                    Toolkit.getDefaultToolkit().sync();
+                    /*try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            public void run() {
+                                c.getBufferStrategy().show();
+                            }
+                        });
+                    } catch (Exception e) {
+                        
+                    }*/
                 }
             }
             try {
-                Thread.sleep(50);
+                long currentTime = System.nanoTime();
+                long waitTime = lastCycleTime + CYCLE_INTERVAL_NS - currentTime;
+                if (waitTime > 0 && waitTime % MIN_SLEEP_NS > 0) {
+                    Thread.sleep((waitTime / MIN_SLEEP_NS) * MIN_SLEEP_NS / 1000000);
+                }
+                while (System.nanoTime() < lastCycleTime + CYCLE_INTERVAL_NS);
             } catch(InterruptedException e) {
                 Thread.interrupted();
             }
