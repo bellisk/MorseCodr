@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Gfx {
     public static void draw(ArrayList<Boolean> history, ArrayList<Boolean> otherHistory, Graphics2D g, int w, int h,
@@ -52,6 +53,24 @@ public class Gfx {
             g.setFont(new Font("Verdana", Font.PLAIN, 18));
             for (Letter l: letters) {
                 g.drawString(l.l, w + ((l.start + l.end) / 2 - history.size()) * speedMultiplier - 5, 18);
+            }
+        }
+    }
+    
+    public static void drawMorseCode(Graphics2D g, int width, int height) {
+        ArrayList<String> letters = new ArrayList<String>(Analysis.MORSE_CODE_INVERTED.keySet());
+        Collections.sort(letters);
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width, height);
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Courier", Font.PLAIN, 15));
+        int y = 0;
+        int x = 10;
+        for (String l : letters) {
+            g.drawString(l + " " + Analysis.MORSE_CODE_INVERTED.get(l), x, y += 20);
+            if (y > height - 30) {
+                y = 0;
+                x += 100;
             }
         }
     }

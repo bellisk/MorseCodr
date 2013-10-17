@@ -3,6 +3,7 @@ package cat.katzenfabrik.morsecodr;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Analysis {
     public static enum SymbolType {
@@ -90,6 +91,7 @@ public class Analysis {
     }
     
     public static final HashMap<String, String> MORSE_CODE = new HashMap<String, String>();
+    public static final HashMap<String, String> MORSE_CODE_INVERTED = new HashMap<String, String>();
     static {
         MORSE_CODE.put(".-", "A");
         MORSE_CODE.put("-...", "B");
@@ -129,5 +131,9 @@ public class Analysis {
         MORSE_CODE.put("-----", "0");
         MORSE_CODE.put(".-.-.-", ".");
         MORSE_CODE.put("--..--", ",");
+        
+        for (Map.Entry<String, String> e : MORSE_CODE.entrySet()) {
+            MORSE_CODE_INVERTED.put(e.getValue(), e.getKey());
+        }
     }
 }

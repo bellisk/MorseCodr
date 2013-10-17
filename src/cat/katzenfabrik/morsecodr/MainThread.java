@@ -39,6 +39,7 @@ public class MainThread extends Thread {
     private ArrayList<Boolean> history = new ArrayList<Boolean>();
     private ArrayList<Boolean> otherHistory = new ArrayList<Boolean>();
     private Canvas c;
+    private Canvas mcc;
     private int dotLength = 3;
     public synchronized void setDotLength(int dotLength) { this.dotLength = dotLength; }
     private EnumSet<DisplaySetting> displaySettings = EnumSet.allOf(DisplaySetting.class);
@@ -76,6 +77,9 @@ public class MainThread extends Thread {
     }
     public synchronized void setCanvas(Canvas c) {
         this.c = c;
+    }
+    public synchronized void setMorseCodeCanvas(Canvas mcc) {
+        this.mcc = mcc;
     }
     
     @Override
@@ -133,16 +137,9 @@ public class MainThread extends Thread {
                             isSet(DisplaySetting.METRE),
                             isSet(DisplaySetting.DOTDASH));
                     c.getBufferStrategy().show();
+                    Gfx.drawMorseCode((Graphics2D) mcc.getBufferStrategy().getDrawGraphics(), mcc.getWidth(), mcc.getHeight());
+                    mcc.getBufferStrategy().show();
                     Toolkit.getDefaultToolkit().sync();
-                    /*try {
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            public void run() {
-                                c.getBufferStrategy().show();
-                            }
-                        });
-                    } catch (Exception e) {
-                        
-                    }*/
                 }
             }
             try {
