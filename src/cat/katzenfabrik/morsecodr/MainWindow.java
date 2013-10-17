@@ -2,9 +2,7 @@ package cat.katzenfabrik.morsecodr;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -13,10 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.Socket;
 import javax.sound.sampled.LineUnavailableException;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -24,30 +20,36 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class MainWindow extends JFrame implements KeyListener {
+public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCallback, MainThread.DisconnectedCallback {
     MainThread t;
+	Receiver r;
+	final JButton listenButton = new JButton("Listen");
+    final JButton connectButton = new JButton("Connect");
+	final JButton cancelButton = new JButton("Cancel");
+	final JButton disconnectButton = new JButton("Disconnect");
     public MainWindow(final MainThread t) throws LineUnavailableException {
+		final MainWindow me = this;
         this.t = t;
+		t.setDisconnectedCallback(this);
         setLayout(new BorderLayout());
         JPanel topPanel = new JPanel();
         add(topPanel, BorderLayout.NORTH);
-        final JButton listenButton = new JButton("Listen");
-        final JButton connectButton = new JButton("Connect");
         topPanel.add(listenButton);
         listenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
-                    t.setSender(Receiver.receive());
-                    listenButton.setVisible(false);
-                    connectButton.setVisible(false);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, ex.toString());
-                }
+					r = new Receiver(me);
+					r.start();
+					listenButton.setVisible(false);
+					connectButton.setVisible(false);
+					cancelButton.setVisible(true);
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, e.toString());
+				}
             }
         });
         topPanel.add(connectButton);
@@ -58,11 +60,29 @@ public class MainWindow extends JFrame implements KeyListener {
                     t.setSender(new Sender(JOptionPane.showInputDialog("Enter IP")));
                     listenButton.setVisible(false);
                     connectButton.setVisible(false);
+					disconnectButton.setVisible(true);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, ex.toString());
                 }
             }
         });
+		topPanel.add(cancelButton);
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                r.cancel();
+            }
+        });
+		cancelButton.setVisible(false);
+		topPanel.add(disconnectButton);
+        disconnectButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                t.disconnect();
+				disconnectButton.setVisible(false);
+            }
+        });
+		disconnectButton.setVisible(false);
         Canvas c = new Canvas();
         add(c, BorderLayout.CENTER);
         JPanel settingsP = new JPanel();
@@ -166,7 +186,7 @@ public class MainWindow extends JFrame implements KeyListener {
         morseCodeCanvas.createBufferStrategy(2);
         t.setCanvas(c);
         t.setMorseCodeCanvas(morseCodeCanvas);
-        c.requestFocus();
+        c.requestFocusInWindow();
     }
 
     @Override
@@ -182,4 +202,39 @@ public class MainWindow extends JFrame implements KeyListener {
     public void keyReleased(KeyEvent ke) {
         t.send(new MainThread.KeyMsg(false));
     }
+
+	@Override
+	public void foundSocket(Socket s) {
+		try {
+			t.setSender(new Sender(s));
+			cancelButton.setVisible(false);
+			disconnectButton.setVisible(true);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e.toString());
+			cancelled();
+		}
+	}
+
+	@Override
+	public void cancelled() {
+		listenButton.setVisible(true);
+        connectButton.setVisible(true);
+		cancelButton.setVisible(false);
+	}
+
+	@Override
+	public void failed(Exception e) {
+		JOptionPane.showMessageDialog(null, e.toString());
+		cancelled();
+	}
+
+	@Override
+	public void disconnected(Exception e) {
+		disconnectButton.setVisible(false);
+		if (e != null) {
+			JOptionPane.showMessageDialog(null, e.toString());
+		}
+		listenButton.setVisible(true);
+        connectButton.setVisible(true);
+	}
 }

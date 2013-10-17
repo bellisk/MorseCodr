@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -29,6 +27,13 @@ public class MainThread extends Thread {
             this.pressed = pressed;
         }
     }
+	public static interface DisconnectedCallback {
+		public void disconnected(Exception e);
+	}
+	private DisconnectedCallback disconnectedCallback;
+	public synchronized void setDisconnectedCallback(DisconnectedCallback disconnectedCallback) {
+		this.disconnectedCallback = disconnectedCallback;
+	}
     private LinkedList<KeyMsg> keyMsgQ = new LinkedList<KeyMsg>();
     private int noKeyPressCount = 0;
     private int noKeyReleaseCount = 0;
@@ -75,12 +80,32 @@ public class MainThread extends Thread {
     public synchronized void setSender(Sender sender) {
         this.sender = sender;
     }
+	public synchronized void disconnect() {
+		try {
+			sender.write("bye");
+		} catch (Exception e) {
+			// Ignore
+		}
+		disconnected(null);
+	}
     public synchronized void setCanvas(Canvas c) {
         this.c = c;
     }
     public synchronized void setMorseCodeCanvas(Canvas mcc) {
         this.mcc = mcc;
     }
+	
+	private synchronized void disconnected(final Exception e) {
+		sender = null;
+		final DisconnectedCallback cb = disconnectedCallback;
+		if (cb == null) { return; }
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				cb.disconnected(e);
+			}
+		});
+	}
     
     @Override
     public void run() {
@@ -113,9 +138,17 @@ public class MainThread extends Thread {
                 boolean otherEndBeepingNow = false;
                 if (sender != null) {
                     try {
-                        otherEndBeepingNow = sender.read().equals("1");
-                    } catch (IOException ex) {
-                        sender = null;
+						String msg = sender.read();
+						if (msg == null) {
+							disconnected(new RuntimeException("Other end hung up unexpectedly."));
+						} else {
+							otherEndBeepingNow = msg.equals("1");
+							if (msg.equals("bye")) {
+								disconnected(null);
+							}
+						}
+                    } catch (Exception ex) {
+                        disconnected(ex);
                     }
                 }
                 if (!otherEndBeeping && otherEndBeepingNow) {
