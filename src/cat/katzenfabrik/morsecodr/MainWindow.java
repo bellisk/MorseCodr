@@ -15,8 +15,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MainWindow extends JFrame implements KeyListener {
     MainThread t;
@@ -68,6 +72,15 @@ public class MainWindow extends JFrame implements KeyListener {
                 }
             });
         }
+        settingsP.add(new JLabel("Interval"));
+        final JSlider intervalS = new JSlider(1, 6);
+        intervalS.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                t.setDotLength(intervalS.getValue());
+            }
+        });
+        settingsP.add(intervalS);
         pack();
         setSize(new Dimension(800, 600));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

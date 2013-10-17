@@ -35,6 +35,7 @@ public class MainThread extends Thread {
     private ArrayList<Boolean> otherHistory = new ArrayList<Boolean>();
     private Canvas c;
     private int dotLength = 3;
+    public synchronized void setDotLength(int dotLength) { this.dotLength = dotLength; }
     private EnumSet<DisplaySetting> displaySettings = EnumSet.allOf(DisplaySetting.class);
     public synchronized void setDisplaySetting(DisplaySetting setting, boolean value) {
         if (value) {
