@@ -26,7 +26,7 @@ public class Gfx {
     {
         ArrayList<Symbol> symbols = Analysis.extractSymbols(history, dotLength);
         ArrayList<Letter> letters = Analysis.extractLetters(symbols);
-        int speedMultiplier = 2;
+        int speedMultiplier = 1;
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
         g.setColor(new Color(220, 220, 220));
@@ -73,5 +73,10 @@ public class Gfx {
                 x += 100;
             }
         }
+    }
+
+    public static void drawBlank(Graphics2D g, int width, int height) {
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width, height);
     }
 }

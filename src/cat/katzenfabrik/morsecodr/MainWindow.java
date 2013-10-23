@@ -31,9 +31,9 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
 	final JButton cancelButton = new JButton("Cancel");
 	final JButton disconnectButton = new JButton("Disconnect");
     public MainWindow(final MainThread t) throws LineUnavailableException {
-		final MainWindow me = this;
+        final MainWindow me = this;
         this.t = t;
-		t.setDisconnectedCallback(this);
+	t.setDisconnectedCallback(this);
         setLayout(new BorderLayout());
         JPanel topPanel = new JPanel();
         add(topPanel, BorderLayout.NORTH);
@@ -42,14 +42,14 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
-					r = new Receiver(me);
-					r.start();
-					listenButton.setVisible(false);
-					connectButton.setVisible(false);
-					cancelButton.setVisible(true);
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, e.toString());
-				}
+                    r = new Receiver(me);
+                    r.start();
+                    listenButton.setVisible(false);
+                    connectButton.setVisible(false);
+                    cancelButton.setVisible(true);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, e.toString());
+                }
             }
         });
         topPanel.add(connectButton);
@@ -57,32 +57,36 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
-                    t.setSender(new Sender(JOptionPane.showInputDialog("Enter IP")));
-                    listenButton.setVisible(false);
-                    connectButton.setVisible(false);
-					disconnectButton.setVisible(true);
+                    String host = JOptionPane.showInputDialog("Enter IP", Prefs.getString(Sender.HOST));
+                    if (host != null) {
+                        Prefs.set(Sender.HOST, host);
+                        t.setSender(new Sender(host));
+                        listenButton.setVisible(false);
+                        connectButton.setVisible(false);
+                        disconnectButton.setVisible(true);
+                    }
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, ex.toString());
                 }
             }
         });
-		topPanel.add(cancelButton);
+        topPanel.add(cancelButton);
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 r.cancel();
             }
         });
-		cancelButton.setVisible(false);
-		topPanel.add(disconnectButton);
+	cancelButton.setVisible(false);
+	topPanel.add(disconnectButton);
         disconnectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 t.disconnect();
-				disconnectButton.setVisible(false);
+		disconnectButton.setVisible(false);
             }
         });
-		disconnectButton.setVisible(false);
+	disconnectButton.setVisible(false);
         Canvas c = new Canvas();
         add(c, BorderLayout.CENTER);
         JPanel settingsP = new JPanel();
@@ -90,7 +94,7 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
         add(settingsP, BorderLayout.EAST);
         int gridRow = 0;
         for (final DisplaySetting ds : DisplaySetting.values()) {
-            final JCheckBox cb = new JCheckBox("Show " + ds.text, true);
+            final JCheckBox cb = new JCheckBox("Show " + ds.text, Prefs.getBoolean(ds));
             settingsP.add(cb, 
                     new GridBagConstraints(
                             /* gridx */ 0,
@@ -125,6 +129,7 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
                             /* ipadx */ 0,
                             /* ipady */ 0));
         final JSlider intervalS = new JSlider(1, 6);
+        intervalS.setValue(Prefs.getInteger(MainThread.DOT_LENGTH));
         intervalS.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
@@ -145,26 +150,6 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
                             /* ipadx */ 0,
                             /* ipady */ 0));
         final Canvas morseCodeCanvas = new Canvas();
-        final JCheckBox showMorseCodeCB = new JCheckBox("Show Morse code", true);
-        showMorseCodeCB.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                morseCodeCanvas.setVisible(showMorseCodeCB.isSelected());
-            }
-        });
-        settingsP.add(showMorseCodeCB, 
-                    new GridBagConstraints(
-                            /* gridx */ 0,
-                            /* gridy */ gridRow ++,
-                            /* gridwidth */ 1,
-                            /* gridheight */ 1,
-                            /* weightx */ 1,
-                            /* weighty */ 0,
-                            /* anchor */ GridBagConstraints.NORTHWEST,
-                            /* fill */ GridBagConstraints.HORIZONTAL,
-                            /* insets */ new Insets(0, 0, 0, 0),
-                            /* ipadx */ 0,
-                            /* ipady */ 0));
         settingsP.add(morseCodeCanvas, 
                     new GridBagConstraints(
                             /* gridx */ 0,

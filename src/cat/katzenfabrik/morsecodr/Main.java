@@ -1,5 +1,6 @@
 package cat.katzenfabrik.morsecodr;
 
+import java.util.prefs.Preferences;
 import javax.sound.sampled.LineUnavailableException;
 
 public class Main {

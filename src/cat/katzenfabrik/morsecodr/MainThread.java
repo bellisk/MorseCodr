@@ -15,6 +15,10 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.swing.SwingUtilities;
 
 public class MainThread extends Thread {
+    public static final Prefs.Setting<Integer> DOT_LENGTH = new Prefs.Setting<Integer>() {
+        @Override public String name() { return "DOT_LENGTH"; }
+        @Override public Integer defaultValue() { return 3; }
+    };
     public static final int CYCLE_INTERVAL_NS = 25000000;
     public static final int MIN_SLEEP_NS = 5000000;
     private long lastCycleTime = -1;
@@ -45,20 +49,29 @@ public class MainThread extends Thread {
     private ArrayList<Boolean> otherHistory = new ArrayList<Boolean>();
     private Canvas c;
     private Canvas mcc;
-    private int dotLength = 3;
-    public synchronized void setDotLength(int dotLength) { this.dotLength = dotLength; }
-    private EnumSet<DisplaySetting> displaySettings = EnumSet.allOf(DisplaySetting.class);
+    private int dotLength = Prefs.getInteger(DOT_LENGTH);
+    public synchronized void setDotLength(int dotLength) {
+        this.dotLength = dotLength;
+        Prefs.set(DOT_LENGTH, dotLength);
+    }
+    private EnumSet<DisplaySetting> displaySettings = EnumSet.noneOf(DisplaySetting.class);
     public synchronized void setDisplaySetting(DisplaySetting setting, boolean value) {
         if (value) {
             displaySettings.add(setting);
         } else {
             displaySettings.remove(setting);
         }
+        Prefs.set(setting, value);
     }
     private boolean isSet(DisplaySetting setting) {
         return displaySettings.contains(setting);
     }
     public MainThread() throws LineUnavailableException {
+        for (DisplaySetting s : DisplaySetting.values()) {
+            if (Prefs.getBoolean(s)) {
+                displaySettings.add(s);
+            }
+        }
         AudioFormat audioFormat = new AudioFormat(8000, 8, 1, true, true);
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
         snd = (Clip) AudioSystem.getLine(info);
@@ -138,22 +151,22 @@ public class MainThread extends Thread {
                 boolean otherEndBeepingNow = false;
                 if (sender != null) {
                     try {
-						String msg = sender.read();
-						if (msg == null) {
-							disconnected(new RuntimeException("Other end hung up unexpectedly."));
-						} else {
-							otherEndBeepingNow = msg.equals("1");
-							if (msg.equals("bye")) {
-								disconnected(null);
-							}
-						}
+                        String msg = sender.read();
+                        if (msg == null) {
+                            disconnected(new RuntimeException("Other end hung up unexpectedly."));
+                        } else {
+                            otherEndBeepingNow = msg.equals("1");
+                            if (msg.equals("bye")) {
+                                disconnected(null);
+                            }
+                        }
                     } catch (Exception ex) {
                         disconnected(ex);
                     }
                 }
                 if (!otherEndBeeping && otherEndBeepingNow) {
                     otherEndBeeping = true;
-					otherEndSnd.setFramePosition(0);
+                    otherEndSnd.setFramePosition(0);
                     otherEndSnd.loop(10000);
                 }
                 if (otherEndBeeping && !otherEndBeepingNow) {
@@ -170,7 +183,11 @@ public class MainThread extends Thread {
                             isSet(DisplaySetting.METRE),
                             isSet(DisplaySetting.DOTDASH));
                     c.getBufferStrategy().show();
-                    Gfx.drawMorseCode((Graphics2D) mcc.getBufferStrategy().getDrawGraphics(), mcc.getWidth(), mcc.getHeight());
+                    if (isSet(DisplaySetting.SHOW_MORSE_CODE)) {
+                        Gfx.drawMorseCode((Graphics2D) mcc.getBufferStrategy().getDrawGraphics(), mcc.getWidth(), mcc.getHeight());
+                    } else {
+                        Gfx.drawBlank((Graphics2D) mcc.getBufferStrategy().getDrawGraphics(), mcc.getWidth(), mcc.getHeight());
+                    }
                     mcc.getBufferStrategy().show();
                     Toolkit.getDefaultToolkit().sync();
                 }
