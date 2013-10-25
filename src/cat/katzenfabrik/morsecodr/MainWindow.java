@@ -1,5 +1,6 @@
 package cat.katzenfabrik.morsecodr;
 
+import cat.katzenfabrik.morsecodr.MainThread.KeyMsg;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -10,6 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.Socket;
 import javax.sound.sampled.LineUnavailableException;
@@ -23,7 +27,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCallback, MainThread.DisconnectedCallback {
+public class MainWindow extends JFrame implements KeyListener, MouseListener, Receiver.SocketCallback, MainThread.DisconnectedCallback {
     MainThread t;
 	Receiver r;
 	final JButton listenButton = new JButton("Listen");
@@ -167,6 +171,7 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
         setSize(new Dimension(800, 600));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         c.addKeyListener(this);
+        c.addMouseListener(this);
         c.createBufferStrategy(2);
         morseCodeCanvas.createBufferStrategy(2);
         t.setCanvas(c);
@@ -188,38 +193,57 @@ public class MainWindow extends JFrame implements KeyListener, Receiver.SocketCa
         t.send(new MainThread.KeyMsg(false));
     }
 
-	@Override
-	public void foundSocket(Socket s) {
-		try {
-			t.setSender(new Sender(s));
-			cancelButton.setVisible(false);
-			disconnectButton.setVisible(true);
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e.toString());
-			cancelled();
-		}
-	}
+    @Override
+    public void foundSocket(Socket s) {
+        try {
+            t.setSender(new Sender(s));
+            cancelButton.setVisible(false);
+            disconnectButton.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.toString());
+            cancelled();
+        }
+    }
 
-	@Override
-	public void cancelled() {
-		listenButton.setVisible(true);
+    @Override
+    public void cancelled() {
+        listenButton.setVisible(true);
         connectButton.setVisible(true);
-		cancelButton.setVisible(false);
-	}
+        cancelButton.setVisible(false);
+    }
 
-	@Override
-	public void failed(Exception e) {
-		JOptionPane.showMessageDialog(null, e.toString());
-		cancelled();
-	}
+    @Override
+    public void failed(Exception e) {
+        JOptionPane.showMessageDialog(null, e.toString());
+        cancelled();
+    }
 
-	@Override
-	public void disconnected(Exception e) {
-		disconnectButton.setVisible(false);
-		if (e != null) {
-			JOptionPane.showMessageDialog(null, e.toString());
-		}
-		listenButton.setVisible(true);
+    @Override
+    public void disconnected(Exception e) {
+        disconnectButton.setVisible(false);
+        if (e != null) {
+            JOptionPane.showMessageDialog(null, e.toString());
+        }
+        listenButton.setVisible(true);
         connectButton.setVisible(true);
-	}
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent me) {}
+
+    @Override
+    public void mousePressed(MouseEvent me) {
+        t.send(new KeyMsg(true));
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent me) {
+        t.send(new KeyMsg(false));
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent me) {}
+
+    @Override
+    public void mouseExited(MouseEvent me) {}
 }
