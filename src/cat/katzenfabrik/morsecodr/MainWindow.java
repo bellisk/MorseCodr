@@ -3,6 +3,7 @@ package cat.katzenfabrik.morsecodr;
 import cat.katzenfabrik.morsecodr.MainThread.KeyMsg;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -34,12 +35,15 @@ public class MainWindow extends JFrame implements KeyListener, MouseListener, Re
     final JButton connectButton = new JButton("Connect");
 	final JButton cancelButton = new JButton("Cancel");
 	final JButton disconnectButton = new JButton("Disconnect");
+        
     public MainWindow(final MainThread t) throws LineUnavailableException {
         final MainWindow me = this;
         this.t = t;
 	t.setDisconnectedCallback(this);
+        setBackground(Color.WHITE);
         setLayout(new BorderLayout());
         JPanel topPanel = new JPanel();
+        topPanel.setBackground(Color.WHITE);
         add(topPanel, BorderLayout.NORTH);
         topPanel.add(listenButton);
         listenButton.addActionListener(new ActionListener() {
@@ -94,11 +98,13 @@ public class MainWindow extends JFrame implements KeyListener, MouseListener, Re
         Canvas c = new Canvas();
         add(c, BorderLayout.CENTER);
         JPanel settingsP = new JPanel();
+        settingsP.setBackground(Color.WHITE);
         settingsP.setLayout(new GridBagLayout());
         add(settingsP, BorderLayout.EAST);
         int gridRow = 0;
         for (final DisplaySetting ds : DisplaySetting.values()) {
             final JCheckBox cb = new JCheckBox("Show " + ds.text, Prefs.getBoolean(ds));
+            cb.setBackground(Color.WHITE);
             settingsP.add(cb, 
                     new GridBagConstraints(
                             /* gridx */ 0,
@@ -133,6 +139,7 @@ public class MainWindow extends JFrame implements KeyListener, MouseListener, Re
                             /* ipadx */ 0,
                             /* ipady */ 0));
         final JSlider intervalS = new JSlider(1, 6);
+        intervalS.setBackground(Color.WHITE);
         intervalS.setValue(Prefs.getInteger(MainThread.DOT_LENGTH));
         intervalS.addChangeListener(new ChangeListener() {
             @Override

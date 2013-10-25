@@ -5,15 +5,36 @@ import cat.katzenfabrik.morsecodr.Analysis.Symbol;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.imageio.ImageIO;
 
 public class Gfx {
+    public static final BufferedImage MORSE_ON;
+    public static final BufferedImage MORSE_OFF;
+    static {
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(Gfx.class.getResourceAsStream("morse_on.png"));
+        } catch (Exception e) {}
+        MORSE_ON = img;
+        img = null;
+        try {
+            img = ImageIO.read(Gfx.class.getResourceAsStream("morse_off.png"));
+        } catch (Exception e) {}
+        MORSE_OFF = img;
+    }
+    
     public static void draw(ArrayList<Boolean> history, ArrayList<Boolean> otherHistory, Graphics2D g, int w, int h,
             int dotLength, boolean showTape, boolean showLetters, boolean showMetre, boolean showDotDash)
     {
-        g.setColor(Color.LIGHT_GRAY);
+        g.setColor(Color.WHITE);
         g.fillRect(0, 0, w, h);
+        
+        BufferedImage img = (history.get(history.size() - 1) ? MORSE_ON : MORSE_OFF);
+        g.drawImage(img, w / 2 - img.getWidth() / 2, h * 2 / 3 - 50 - img.getHeight(), null);
         if (showTape) {
             g.translate(0, h * 2 / 3);
             drawTape(history, g, w, h / 6, dotLength, showLetters, showMetre, showDotDash);
@@ -27,7 +48,7 @@ public class Gfx {
         ArrayList<Symbol> symbols = Analysis.extractSymbols(history, dotLength);
         ArrayList<Letter> letters = Analysis.extractLetters(symbols);
         int speedMultiplier = 1;
-        g.setColor(Color.WHITE);
+        g.setColor(new Color(245, 245, 245));
         g.fillRect(0, 0, w, h);
         g.setColor(new Color(220, 220, 220));
         int dotLengthBdy = dotLength * 2;
