@@ -95,6 +95,14 @@ public class MainWindow extends JFrame implements KeyListener, MouseListener, Re
             }
         });
 	disconnectButton.setVisible(false);
+        JButton aboutButton = new JButton("About");
+        topPanel.add(aboutButton);
+        aboutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new AboutWindow(me);
+            }
+        });
         Canvas c = new Canvas();
         add(c, BorderLayout.CENTER);
         JPanel settingsP = new JPanel();
