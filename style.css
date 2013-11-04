@@ -1,0 +1,77 @@
+body {
+    font-family: Courier;
+    line-height: 140%;
+    background-color: #DCDCDC;
+}
+
+#content {
+    width: 800px;
+    margin: auto;
+    background-color: white;
+    padding: 60px;
+    padding-left: 155px;
+}
+
+#contenttext {
+    width: 705px;
+}
+
+a:link {
+    color: #5C240D;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:visited {
+    color: #260F05;
+}
+
+a:hover {
+    color: #8B733B;
+}
+
+a:active {
+    color: #AE9967;
+}
+
+#download {
+    float: right;
+    margin-left: 40px;    
+}
+
+#dldetails {
+    margin-top: 5px;
+    font-size: 60%;
+    line-height: 120%;
+}
+
+#dllink {
+    display: block;
+    background-color: #00BB00;
+    background: linear-gradient(to bottom, #00DD00, #00AA00);
+    color: white;
+    padding: 10px 40px 10px 40px;
+    border-radius: 5px;
+    border-top: 2px solid #00FF00;
+    border-left: 2px solid #00EE00;
+    border-right: 2px solid #00AA00;
+    border-bottom: 2px solid #008800;
+}
+
+#dllink:hover {
+    background-color: #00DD00;
+    background: linear-gradient(to bottom, #00FF00, #00CC00);
+    border-top: 2px solid #22FF22;
+    border-left: 2px solid #11FF11;
+    border-right: 2px solid #00CC00;
+    border-bottom: 2px solid #00AA00;
+}
+
+#dllink:active {
+    background-color: #00FF00;
+    background: linear-gradient(to top, #00FF00, #00CC00);
+    border-top: 2px solid #22FF22;
+    border-left: 2px solid #11FF11;
+    border-right: 2px solid #00CC00;
+    border-bottom: 2px solid #00AA00;
+}
