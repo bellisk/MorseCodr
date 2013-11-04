@@ -34,6 +34,11 @@ a:active {
     color: #AE9967;
 }
 
+.screenshot {
+    border: 1px solid #CCCCCC;
+    width: 705px;
+}
+
 #download {
     float: right;
     margin-left: 40px;    
